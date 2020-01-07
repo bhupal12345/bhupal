@@ -1,0 +1,544 @@
+---
+- block:
+
+# WARNING: Many of the variables built here contain passwords
+#          removing no_log should not be done without due
+#          concern. Do locally and for debugging purposes.
+
+    - name: List of CPP contexts to be deployed
+      debug:
+        var: cpp_microservice_filtered
+        verbosity: 4
+
+    - name: Load context artefacts definitions
+      include_vars: "cpp_{{ item }}.yml"
+      no_log: true
+      with_items: "{{ cpp_microservice_filtered }}"
+
+    - name: Load service map definitions
+      include_vars: "cpp_{{ item }}_service_map.yml"
+      no_log: true
+      with_items: "{{ cpp_microservice_filtered }}"
+
+    - name: Load context artefacts (mocks) definitions
+      include_vars: "cpp_{{ item }}_mock.yml"
+      when: wildfly_deploy_mocks
+      no_log: true
+      with_items: "{{ cpp_microservice_filtered }}"
+
+    - name: Load context data source users
+      include_vars: "cpp_db_users.yml"
+      no_log: true
+
+    - name: Build list of database vars files to load
+      set_fact:
+        cpp_db: "{{ hostvars[inventory_hostname] | key_startswith('cpp_framework_file__') | list }}"
+
+    - name: List database vars files
+      debug:
+        var: cpp_db
+        verbosity: 0
+
+    - name: Load context databases, database artefacts and data sources
+      include_vars: "{{ item }}"
+      no_log: true
+      with_items: "{{ cpp_db }}"
+
+    - name: TWIFF simulator artefacts
+      include_vars: "cpp_twif_simulator.yml"
+      no_log: true
+      when: ( wildfly_deploy_twif_simulator | bool )
+
+    - name: Online Plea artefacts
+      include_vars: "cpp_onlineplea.yml"
+      no_log: false
+      when: ( wildfly_deploy_online_plea | bool )
+
+    - name: Testing artefacts
+      include_vars: "cpp_testing.yml"
+      no_log: true
+      when: ( cpp_wildfly_jolokia_enable | bool )
+
+    - name: Set wildfly gavdeploy list - Part1
+      no_log: true
+      set_fact:
+        wildfly_gavdeploy_list1: "{{
+          cpp_assignment_gavs                      | union(cpp_assignment_mock_gavs)               | \
+          union(cpp_audit_gavs)                    | union(cpp_audit_mock_gavs)                    | \
+          union(cpp_authorisationservice_gavs)     | union(cpp_authorisationservice_mock_gavs)     | \
+          union(cpp_boxworkmanagement_gavs)        | union(cpp_boxworkmanagement_mock_gavs)        | \
+          union(cpp_businessprocesses_gavs)        | union(cpp_businessprocesses_mock_gavs)        | \
+          union(cpp_camunda_gavs)                                                                  | \
+          union(cpp_chargingworkmanagement_gavs)   | union(cpp_chargingworkmanagement_mock_gavs)   | \
+          union(cpp_defence_gavs)                  | union(cpp_defence_mock_gavs)                  | \
+          union(cpp_hearing_gavs)                  | union(cpp_hearing_mock_gavs)                  | \
+          union(cpp_idpc_gavs)                     | union(cpp_idpc_mock_gavs)                     | \
+          union(cpp_lifecycle_gavs)                | union(cpp_lifecycle_mock_gavs)                | \
+          union(cpp_lifecycleredaction_gavs)       | union(cpp_lifecycleredaction_mock_gavs)       | \
+          union(cpp_listing_gavs)                  | union(cpp_listing_mock_gavs)                  | \
+          union(cpp_material_gavs)                 | union(cpp_material_mock_gavs)                 | \
+          union(cpp_mireportdata_gavs)             | union(cpp_mireportdata_mock_gavs)             | \
+          union(cpp_misystemdata_gavs)             | union(cpp_misystemdata_mock_gavs)             | \
+          union(cpp_notification_gavs)             | union(cpp_notification_mock_gavs)             | \
+          union(cpp_notificationnotify_gavs)       | union(cpp_notificationnotify_mock_gavs)       | \
+          union(cpp_onlineplea_gavs)                                                               | \
+          union(cpp_people_gavs)                   | union(cpp_people_mock_gavs)                   | \
+          union(cpp_prosecutioncasefile_gavs)      | union(cpp_prosecutioncasefile_mock_gavs)      | \
+          union(cpp_progression_gavs)              | union(cpp_progression_mock_gavs)              | \
+          union(cpp_pssreferencedataoffences_gavs) | union(cpp_pssreferencedataoffences_mock_gavs) | \
+          union(cpp_referencedata_gavs)            | union(cpp_referencedata_mock_gavs)            | \
+          union(cpp_referencedataoffences_gavs)    | union(cpp_referencedataoffences_mock_gavs)
+        }}"
+      when: wildfly_gavdeploy_list is not defined
+
+    - name: Set Wildfly gavdeploy list - Part2
+      no_log: true
+      set_fact:
+        wildfly_gavdeploy_list2: "{{
+          cpp_resulting_gavs                             | union(cpp_resulting_mock_gavs)                      | \
+          union(cpp_results_gavs)                        | union(cpp_results_mock_gavs)                        | \
+          union(cpp_scheduling_gavs)                     | union(cpp_scheduling_mock_gavs)                     | \
+          union(cpp_sjp_gavs)                            | union(cpp_sjp_mock_gavs)                            | \
+          union(cpp_staging_gavs)                        | union(cpp_staging_mock_gavs)                        | \
+          union(cpp_stagingedamm_gavs)                   | union(cpp_stagingedamm_mock_gavs)                   | \
+          union(cpp_stagingenforcement_gavs)             | union(cpp_stagingenforcement_mock_gavs)             | \
+          union(cpp_stagingidam_gavs)                    | union(cpp_stagingidam_mock_gavs)                    | \
+          union(cpp_stagingpnldoffences_gavs)            | union(cpp_stagingpnldoffences_mock_gavs)            | \
+          union(cpp_stagingtfl_gavs)                     | union(cpp_stagingtfl_mock_gavs)                     | \
+          union(cpp_stagingdarts_gavs)                   | union(cpp_stagingdarts_mock_gavs)                   | \
+          union(cpp_stagingprosecutors_gavs)             | union(cpp_stagingprosecutors_mock_gavs)             | \
+          union(cpp_stagingprosecutorsspi_gavs)          | union(cpp_stagingprosecutorsspi_mock_gavs)          | \
+          union(cpp_stagingprosecutorscpsdocuments_gavs) | union(cpp_stagingprosecutorscpsdocuments_mock_gavs) | \
+          union(cpp_stagingprosecutorsdocuments_gavs)    | union(cpp_stagingprosecutorsdocuments_mock_gavs)    | \
+          union(cpp_stagingbulkscan_gavs)                | union(cpp_stagingbulkscan_mock_gavs)                | \
+          union(cpp_stagingxhibit_gavs)                  | union(cpp_stagingxhibit_mock_gavs)                  | \
+          union(cpp_support_gavs)                        | union(cpp_support_mock_gavs)                        | \
+          union(cpp_systemdocumentgenerator_gavs)        | union(cpp_systemdocumentgenerator_mock_gavs)        | \
+          union(cpp_systemidmapper_gavs)                 | union(cpp_systemidmapper_mock_gavs)                 | \
+          union(cpp_authorisationservice_gavs)           | union(cpp_authorisationservice_mock_gavs)           | \
+          union(cpp_systemscheduling_gavs)               | union(cpp_systemscheduling_mock_gavs)               | \
+          union(cpp_usersgroups_gavs)                    | union(cpp_usersgroups_mock_gavs)                    | \
+          union(cpp_testing_tools_gavs)                                                                        | \
+          union(cpp_twif_simulator_gavs)                                                                       | \
+          union(cpp_unifiedsearchquery_gavs)             | union(cpp_unifiedsearchquery_mock_gavs)             | \
+          union(cpp_workmanagement_gavs)
+        }}"
+      when: wildfly_gavdeploy_list is not defined
+
+    - name: Set Wildfly gavdeploy list - Part3 (Wildfly gavdeploy list1 + Wildfly gavdeploy list2)
+      no_log: true
+      set_fact:
+        wildfly_gavdeploy_list: "{{ wildfly_gavdeploy_list1 | union(wildfly_gavdeploy_list2) }}"
+      when:
+        - wildfly_gavdeploy_list is not defined
+        - wildfly_gavdeploy_list1 is defined
+        - wildfly_gavdeploy_list2 is defined
+
+    - name: Set Wildfly datasource list
+      no_log: true
+      set_fact:
+        wildfly_datasource_list: "{{
+          cpp_assignment_datasources                            | \
+          union(cpp_audit_datasources)                          | \
+          union(cpp_authorisationservice_datasources)           | \
+          union(cpp_chargingworkmanagement_datasources)         | \
+          union(cpp_defence_datasources)                        | \
+          union(cpp_fileservice_datasources)                    | \
+          union(cpp_hearing_datasources)                        | \
+          union(cpp_idpc_datasources)                           | \
+          union(cpp_listing_datasources)                        | \
+          union(cpp_lifecycle_datasources)                      | \
+          union(cpp_lifecycleredaction_datasources)             | \
+          union(cpp_material_datasources)                       | \
+          union(cpp_mireportdata_datasources)                   | \
+          union(cpp_misystemdata_datasources)                   | \
+          union(cpp_notification_datasources)                   | \
+          union(cpp_notificationnotify_datasources)             | \
+          union(cpp_people_datasources)                         | \
+          union(cpp_prosecutioncasefile_datasources)            | \
+          union(cpp_progression_datasources)                    | \
+          union(cpp_pssreferencedataoffences_datasources)       | \
+          union(cpp_referencedata_datasources)                  | \
+          union(cpp_referencedataoffences_datasources)          | \
+          union(cpp_resulting_datasources)                      | \
+          union(cpp_results_datasources)                        | \
+          union(cpp_scheduling_datasources)                     | \
+          union(cpp_sjp_datasources)                            | \
+          union(cpp_staging_datasources)                        | \
+          union(cpp_stagingedamm_datasources)                   | \
+          union(cpp_stagingprosecutorsspi_datasources)          | \
+          union(cpp_stagingprosecutorscpsdocuments_datasources) | \
+          union(cpp_stagingprosecutorsdocuments_datasources)    | \
+          union(cpp_stagingenforcement_datasources)             | \
+          union(cpp_stagingidam_datasources)                    | \
+          union(cpp_stagingpnldoffences_datasources)            | \
+          union(cpp_stagingtfl_datasources)                     | \
+          union(cpp_stagingdarts_datasources)                   | \
+          union(cpp_stagingprosecutors_datasources)             | \
+          union(cpp_stagingbulkscan_datasources)                | \
+          union(cpp_stagingxhibit_datasources)                  | \
+          union(cpp_support_datasources)                        | \
+          union(cpp_systemidmapper_datasources)                 | \
+          union(cpp_systemscheduling_datasources)               | \
+          union(cpp_testcontext_datasources)                    | \
+          union(cpp_usersgroups_datasources)                    | \
+          union(cpp_unifiedsearchquery_datasources)             | \
+          union(cpp_workmanagement_datasources)
+        }}"
+
+    - name: Set PostgreSQL database list - Part1
+      no_log: true
+      set_fact:
+        postgresql_database_list1: "{{
+          cpp_assignment_db_eventstore                        | union(cpp_assignment_db_viewstore)               | \
+          union(cpp_audit_db_eventstore)                      | union(cpp_audit_db_viewstore)                    | \
+          union(cpp_authorisationservice_db_store)                                                               | \
+          union(cpp_defence_db_eventstore)                    | union(cpp_defence_db_viewstore)                  | \
+          union(cpp_fileservice_db_store)                                                                        | \
+          union(cpp_hearing_db_eventstore)                    | union(cpp_hearing_db_viewstore)                  | \
+          union(cpp_hearing_db_activiti)                                                                         | \
+          union(cpp_idpc_db_eventstore)                       | union(cpp_idpc_db_viewstore)                     | \
+          union(cpp_idpc_db_activiti)                                                                            | \
+          union(cpp_listing_db_eventstore)                    | union(cpp_listing_db_viewstore)                  | \
+          union(cpp_lifecycle_db_eventstore)                                                                     | \
+          union(cpp_lifecycle_db_activiti)                                                                       | \
+          union(cpp_lifecycleredaction_db_eventstore)         | union(cpp_lifecycleredaction_db_viewstore)       | \
+          union(cpp_lifecycleredaction_db_activiti)                                                              | \
+          union(cpp_material_db_eventstore)                   | union(cpp_material_db_viewstore)                 | \
+          union(cpp_mireportdata_db_eventstore)               | union(cpp_mireportdata_db_viewstore)             | \
+          union(cpp_misystemdata_db_eventstore)               | union(cpp_misystemdata_db_viewstore)             | \
+          union(cpp_notification_db_eventstore)               | union(cpp_notification_db_viewstore)             | \
+          union(cpp_notificationnotify_db_eventstore)         | union(cpp_notificationnotify_db_jobstore)        | \
+          union(cpp_notificationnotify_db_viewstore)                                                             | \
+          union(cpp_people_db_eventstore)                     | union(cpp_people_db_viewstore)                   | \
+          union(cpp_progression_db_eventstore)                | union(cpp_progression_db_viewstore)              | \
+          union(cpp_progression_db_activiti)                                                                     | \
+          union(cpp_prosecutioncasefile_db_eventstore)        | union(cpp_prosecutioncasefile_db_viewstore)      | \
+          union(cpp_prosecutioncasefile_db_activiti)                                                             | \
+          union(cpp_pssreferencedataoffences_db_eventstore)   | union(cpp_pssreferencedataoffences_db_viewstore) | \
+          union(cpp_referencedata_db_eventstore)              | union(cpp_referencedata_db_viewstore)            | \
+          union(cpp_referencedataoffences_db_store)                                                              | \
+          union(cpp_resulting_db_eventstore)                  | union(cpp_resulting_db_viewstore)                | \
+          union(cpp_results_db_eventstore)                    | union(cpp_results_db_viewstore)
+        }}"
+
+    - name: Set PostgreSQL database list - Part2
+      no_log: true
+      set_fact:
+        postgresql_database_list2: "{{ \
+          cpp_scheduling_db_eventstore                            | union(cpp_scheduling_db_viewstore)                     | \
+          union(cpp_sjp_db_eventstore)                            | union(cpp_sjp_db_viewstore)                            | \
+          union(cpp_sjp_db_activiti)                                                                                       | \
+          union(cpp_staging_db_eventstore)                        | union(cpp_staging_db_viewstore)                        | \
+          union(cpp_staging_db_eventprocessorstore)                                                                        | \
+          union(cpp_stagingedamm_db_eventstore)                   | union(cpp_stagingedamm_db_viewstore)                   | \
+          union(cpp_stagingedamm_db_eventprocessorstore)                                                                   | \
+          union(cpp_stagingprosecutorsspi_db_eventstore)          | union(cpp_stagingprosecutorsspi_db_viewstore)          | \
+          union(cpp_stagingprosecutorsspi_db_jobstore)                                                                     | \
+          union(cpp_stagingprosecutorscpsdocuments_db_eventstore) | union(cpp_stagingprosecutorscpsdocuments_db_viewstore) | \
+          union(cpp_stagingprosecutorscpsdocuments_db_jobstore)                                                            | \
+          union(cpp_stagingprosecutorsdocuments_db_eventstore)    | union(cpp_stagingprosecutorsdocuments_db_viewstore)    | \
+          union(cpp_stagingprosecutorsdocuments_db_jobstore)                                                               | \
+          union(cpp_stagingenforcement_db_eventstore)             | union(cpp_stagingenforcement_db_viewstore)             | \
+          union(cpp_stagingenforcement_db_eventprocessorstore)                                                             | \
+          union(cpp_stagingidam_db_eventstore)                    | union(cpp_stagingidam_db_viewstore)                    | \
+          union(cpp_stagingpnldoffences_db_eventstore)            | union(cpp_stagingpnldoffences_db_viewstore)            | \
+          union(cpp_stagingtfl_db_eventstore)                     | union(cpp_stagingtfl_db_viewstore)                     | \
+          union(cpp_stagingtfl_db_eventprocessorstore)                                                                     | \
+          union(cpp_stagingdarts_db_eventstore)                   | union(cpp_stagingdarts_db_eventprocessorstore)         | \
+          union(cpp_stagingprosecutors_db_eventstore)             | union(cpp_stagingprosecutors_db_viewstore)             | \
+          union(cpp_stagingprosecutors_db_jobstore)                                                                        | \
+          union(cpp_stagingbulkscan_db_eventstore)                | union(cpp_stagingbulkscan_db_viewstore)                | \
+          union(cpp_stagingxhibit_db_eventstore)                  | union(cpp_stagingxhibit_db_viewstore)                  | \
+          union(cpp_support_db_eventstore)                        | union(cpp_support_db_viewstore)                        | \
+          union(cpp_systemidmapper_db_store)                                                                               | \
+          union(cpp_systemscheduling_db_eventstore)               | union(cpp_systemscheduling_db_viewstore)               | \
+          union(cpp_testcontext_db_eventstore)                    | union(cpp_testcontext_db_viewstore)                    | \
+          union(cpp_usersgroups_db_eventstore)                    | union(cpp_usersgroups_db_viewstore)                    | \
+          union(cpp_workmanagement_db)
+        }}"
+
+    - name: Set PostgreSQL database list - Part3
+      no_log: true
+      set_fact:
+        postgresql_database: "{{ postgresql_database_list1 | union(postgresql_database_list2) }}"
+
+    - name: Set PostgreSQL database list - *_db_system - framework 6
+      no_log: true
+      set_fact:
+        postgresql_database: "{{
+          postgresql_database                                 | \
+          union(cpp_assignment_db_system)                     | \
+          union(cpp_audit_db_system)                          | \
+          union(cpp_authorisationservice_db_system)           | \
+          union(cpp_defence_db_system)                        | \
+          union(cpp_fileservice_db_system)                    | \
+          union(cpp_hearing_db_system)                        | \
+          union(cpp_idpc_db_system)                           | \
+          union(cpp_listing_db_system)                        | \
+          union(cpp_material_db_system)                       | \
+          union(cpp_mireportdata_db_system)                   | \
+          union(cpp_misystemdata_db_system)                   | \
+          union(cpp_notification_db_system)                   | \
+          union(cpp_notificationnotify_db_system)             | \
+          union(cpp_people_db_system)                         | \
+          union(cpp_progression_db_system)                    | \
+          union(cpp_prosecutioncasefile_db_system)            | \
+          union(cpp_referencedata_db_system)                  | \
+          union(cpp_referencedataoffences_db_system)          | \
+          union(cpp_resulting_db_system)                      | \
+          union(cpp_results_db_system)                        | \
+          union(cpp_scheduling_db_system)                     | \
+          union(cpp_sjp_db_system)                            | \
+          union(cpp_stagingdarts_db_system)                   | \
+          union(cpp_stagingenforcement_db_system)             | \
+          union(cpp_stagingpnldoffences_db_system)            | \
+          union(cpp_stagingprosecutors_db_system)             | \
+          union(cpp_stagingprosecutorscpsdocuments_db_system) | \
+          union(cpp_stagingprosecutorsspi_db_system)          | \
+          union(cpp_stagingtfl_db_system)                     | \
+          union(cpp_stagingxhibit_db_system)                  | \
+          union(cpp_support_db_system)                        | \
+          union(cpp_systemdocumentgenerator_db_system)        | \
+          union(cpp_systemidmapper_db_system)                 | \
+          union(cpp_systemscheduling_db_system)               | \
+          union(cpp_usersgroups_db_system)
+        }}"
+
+    - name: Set PostgreSQL user list
+      no_log: true
+      set_fact:
+        postgresql_user: "{{ cpp_microservice_filtered | map('extract', cpp_db_users) | list }}"
+      tags: event_anonymise
+
+    - name: Set Liquibase gavdeploy list - Part1
+      no_log: true
+      set_fact:
+        liquibase_gavdeploy_list1: "{{
+          cpp_assignment_db_eventstore_gavs                    | union(cpp_assignment_db_viewstore_gavs)                | \
+          union(cpp_audit_db_eventstore_gavs)                  | union(cpp_audit_db_viewstore_gavs)                     | \
+          union(cpp_authorisationservice_db_store_gavs)                                                                 | \
+          union(cpp_defence_db_eventstore_gavs)                | union(cpp_defence_db_viewstore_gavs)                   | \
+          union(cpp_fileservice_db_store_gavs)                                                                          | \
+          union(cpp_hearing_db_eventstore_gavs)                | union(cpp_hearing_db_viewstore_gavs)                   | \
+          union(cpp_hearing_db_activiti_gavs)                                                                           | \
+          union(cpp_idpc_db_eventstore_gavs)                   | union(cpp_idpc_db_viewstore_gavs)                      | \
+          union(cpp_idpc_db_activiti_gavs)                                                                              | \
+          union(cpp_lifecycle_db_eventstore_gavs)              | union(cpp_lifecycle_db_activiti_gavs)                  | \
+          union(cpp_listing_db_eventstore_gavs)                | union(cpp_listing_db_viewstore_gavs)                   | \
+          union(cpp_lifecycleredaction_db_eventstore_gavs)     | union(cpp_lifecycleredaction_db_viewstore_gavs)        | \
+          union(cpp_lifecycleredaction_db_activiti_gavs)                                                                | \
+          union(cpp_material_db_eventstore_gavs)               | union(cpp_material_db_viewstore_gavs)                  | \
+          union(cpp_mireportdata_db_eventstore_gavs)           | union(cpp_mireportdata_db_viewstore_gavs)              | \
+          union(cpp_misystemdata_db_eventstore_gavs)           | union(cpp_misystemdata_db_viewstore_gavs)              | \
+          union(cpp_notification_db_eventstore_gavs)           | union(cpp_notification_db_viewstore_gavs)              | \
+          union(cpp_notificationnotify_db_eventstore_gavs)     | union(cpp_notificationnotify_db_jobstore_gavs)         | \
+          union(cpp_notificationnotify_db_viewstore_gavs)                                                               | \
+          union(cpp_people_db_eventstore_gavs)                 | union(cpp_people_db_viewstore_gavs)                    | \
+          union(cpp_progression_db_eventstore_gavs)            | union(cpp_progression_db_viewstore_gavs)               | \
+          union(cpp_progression_db_activiti_gavs)                                                                       | \
+          union(cpp_prosecutioncasefile_db_eventstore_gavs)    | union(cpp_prosecutioncasefile_db_viewstore_gavs)       | \
+          union(cpp_prosecutioncasefile_db_activiti_gavs)
+        }}"
+      when: liquibase_gavdeploy_list is not defined
+
+    - name: Set Liquibase gavdeploy list - Part2
+      no_log: true
+      set_fact:
+        liquibase_gavdeploy_list2: "{{
+          cpp_pssreferencedataoffences_db_eventstore_gavs              | union(cpp_pssreferencedataoffences_db_viewstore_gavs)       | \
+          union(cpp_referencedata_db_eventstore_gavs)                  | union(cpp_referencedata_db_viewstore_gavs)                  | \
+          union(cpp_referencedataoffences_db_store_gavs)                                                                             | \
+          union(cpp_resulting_db_eventstore_gavs)                      | union(cpp_resulting_db_viewstore_gavs)                      | \
+          union(cpp_results_db_eventstore_gavs)                        | union(cpp_results_db_viewstore_gavs)                        | \
+          union(cpp_scheduling_db_eventstore_gavs)                     | union(cpp_scheduling_db_viewstore_gavs)                     | \
+          union(cpp_sjp_db_eventstore_gavs)                            | union(cpp_sjp_db_viewstore_gavs)                            | \
+          union(cpp_sjp_db_activiti_gavs)                                                                                            | \
+          union(cpp_staging_db_eventstore_gavs)                        | union(cpp_staging_db_viewstore_gavs)                        | \
+          union(cpp_stagingedamm_db_eventstore_gavs)                   | union(cpp_stagingedamm_db_viewstore_gavs)                   | \
+          union(cpp_stagingprosecutorsspi_db_eventstore_gavs)          | union(cpp_stagingprosecutorsspi_db_viewstore_gavs)          | \
+          union(cpp_stagingprosecutorsspi_db_jobstore_gavs)                                                                          | \
+          union(cpp_stagingprosecutorscpsdocuments_db_eventstore_gavs) | union(cpp_stagingprosecutorscpsdocuments_db_viewstore_gavs) | \
+          union(cpp_stagingprosecutorscpsdocuments_db_jobstore_gavs)                                                                 | \
+          union(cpp_stagingprosecutorsdocuments_db_eventstore_gavs)    | union(cpp_stagingprosecutorsdocuments_db_viewstore_gavs)    | \
+          union(cpp_stagingprosecutorsdocuments_db_jobstore_gavs)                                                                    | \
+          union(cpp_stagingenforcement_db_eventstore_gavs)             | union(cpp_stagingenforcement_db_viewstore_gavs)             | \
+          union(cpp_stagingidam_db_eventstore_gavs)                    | union(cpp_stagingidam_db_viewstore_gavs)                    | \
+          union(cpp_stagingpnldoffences_db_eventstore_gavs)            | union(cpp_stagingpnldoffences_db_viewstore_gavs)            | \
+          union(cpp_stagingtfl_db_eventstore_gavs)                     | union(cpp_stagingtfl_db_viewstore_gavs)                     | \
+          union(cpp_stagingdarts_db_eventstore_gavs)                                                                                 | \
+          union(cpp_stagingprosecutors_db_eventstore_gavs)             | union(cpp_stagingprosecutors_db_viewstore_gavs)             | \
+          union(cpp_stagingprosecutors_db_jobstore_gavs)                                                                             | \
+          union(cpp_stagingbulkscan_db_eventstore_gavs)                | union(cpp_stagingbulkscan_db_viewstore_gavs)               | \
+          union(cpp_stagingxhibit_db_eventstore_gavs)                  | union(cpp_stagingxhibit_db_viewstore_gavs)                  | \
+          union(cpp_support_db_eventstore_gavs)                        | union(cpp_support_db_viewstore_gavs)                        | \
+          union(cpp_systemidmapper_db_store_gavs)                                                                                    | \
+          union(cpp_systemscheduling_db_eventstore_gavs)               | union(cpp_systemscheduling_db_viewstore_gavs)               | \
+          union(cpp_testcontext_db_eventstore_gavs)                    | union(cpp_testcontext_db_viewstore_gavs)                    | \
+          union(cpp_usersgroups_db_eventstore_gavs)                    | union(cpp_usersgroups_db_viewstore_gavs)                    | \
+          union(cpp_workmanagement_db_gavs)
+        }}"
+      when: liquibase_gavdeploy_list is not defined
+
+    - name: Set Liquibase gavdeploy list - Part3 (Liquibase gavdeploy Part1 + Liquibase gavdeploy Part2)
+      no_log: true
+      set_fact:
+        liquibase_gavdeploy_list: "{{ liquibase_gavdeploy_list1 | union(liquibase_gavdeploy_list2) }}"
+      when:
+        - liquibase_gavdeploy_list is not defined
+        - liquibase_gavdeploy_list1 is defined
+        - liquibase_gavdeploy_list2 is defined
+
+    - name: Set Liquibase gavdeploy list - *_db_system_gavs - framework 6
+      no_log: true
+      set_fact:
+        liquibase_gavdeploy_list: "{{
+          liquibase_gavdeploy_list                                 | \
+          union(cpp_assignment_db_system_gavs)                     | \
+          union(cpp_audit_db_system_gavs)                          | \
+          union(cpp_authorisationservice_db_system_gavs)           | \
+          union(cpp_defence_db_system_gavs)                        | \
+          union(cpp_fileservice_db_system_gavs)                    | \
+          union(cpp_hearing_db_system_gavs)                        | \
+          union(cpp_idpc_db_system_gavs)                           | \
+          union(cpp_listing_db_system_gavs)                        | \
+          union(cpp_material_db_system_gavs)                       | \
+          union(cpp_mireportdata_db_system_gavs)                   | \
+          union(cpp_misystemdata_db_system_gavs)                   | \
+          union(cpp_notification_db_system_gavs)                   | \
+          union(cpp_notificationnotify_db_system_gavs)             | \
+          union(cpp_people_db_system_gavs)                         | \
+          union(cpp_progression_db_system_gavs)                    | \
+          union(cpp_prosecutioncasefile_db_system_gavs)            | \
+          union(cpp_referencedata_db_system_gavs)                  | \
+          union(cpp_referencedataoffences_db_system_gavs)          | \
+          union(cpp_resulting_db_system_gavs)                      | \
+          union(cpp_results_db_system_gavs)                        | \
+          union(cpp_scheduling_db_system_gavs)                     | \
+          union(cpp_sjp_db_system_gavs)                            | \
+          union(cpp_stagingdarts_db_system_gavs)                   | \
+          union(cpp_stagingenforcement_db_system_gavs)             | \
+          union(cpp_stagingpnldoffences_db_system_gavs)            | \
+          union(cpp_stagingprosecutorscpsdocuments_db_system_gavs) | \
+          union(cpp_stagingtfl_db_system_gavs)                     | \
+          union(cpp_stagingxhibit_db_system_gavs)                  | \
+          union(cpp_support_db_system_gavs)                        | \
+          union(cpp_systemdocumentgenerator_db_system_gavs)        | \
+          union(cpp_systemidmapper_db_system_gavs)                 | \
+          union(cpp_systemscheduling_db_system_gavs)               | \
+          union(cpp_usersgroups_db_system_gavs)
+        }}"
+
+  when: not cpp_generate_groupid_map | bool
+
+# The block below, is used to generate a map between
+# ${context}_project_version variables and
+# maven groupIds.
+#
+# Update this when a new context or microservice
+# is added. Context GAV definitions must also provide
+# the following hash:
+#
+# cpp_microservice_groupid_map:
+#   context_project_version:
+#     groupid: '{{ cpp_microservice_gavs[0].groupId }}'
+
+- block:
+
+    - name: Load all vars from cpp role vars
+      no_log: true
+      include_vars: "{{ item }}"
+      with_fileglob:
+        - "{{ role_path }}/vars/*"
+
+    - name: Load uiapp vars - includes the map hash
+      no_log: true
+      include_vars: "{{ playbook_dir }}/group_vars/______{{ inventory_project }}_______/ui.yml"
+
+    - name: Build _project_version map to groupid variable
+      no_log: true
+      set_fact:
+        var_to_groupid: "{{
+          cpp_assignment_groupid_map |
+          combine(cpp_audit_groupid_map) |
+          combine(cpp_authorisationservice_groupid_map) |
+          combine(cpp_boxworkmanagement_groupid_map) |
+          combine(cpp_businessprocesses_groupid_map) |
+          combine(cpp_chargingworkmanagement_groupid_map) |
+          combine(cpp_defence_groupid_map) |
+          combine(cpp_hearing_groupid_map) |
+          combine(cpp_hearing_groupid_map) |
+          combine(cpp_idpc_groupid_map) |
+          combine(cpp_lifecycle_groupid_map) |
+          combine(cpp_lifecycleredaction_groupid_map) |
+          combine(cpp_listing_groupid_map) |
+          combine(cpp_material_groupid_map) |
+          combine(cpp_mireportdata_groupid_map) |
+          combine(cpp_misystemdata_groupid_map) |
+          combine(cpp_notification_groupid_map) |
+          combine(cpp_notificationnotify_groupid_map) |
+          combine(cpp_onlineplea_groupid_map) |
+          combine(cpp_people_groupid_map) |
+          combine(cpp_progression_groupid_map) |
+          combine(cpp_prosecutioncasefile_groupid_map) |
+          combine(cpp_pssreferencedataoffences_groupid_map) |
+          combine(cpp_referencedata_groupid_map) |
+          combine(cpp_referencedataoffences_groupid_map) |
+          combine(cpp_resulting_groupid_map) |
+          combine(cpp_results_groupid_map) |
+          combine(cpp_scheduling_groupid_map) |
+          combine(cpp_sjp_groupid_map) |
+          combine(cpp_staging_groupid_map) |
+          combine(cpp_stagingedamm_groupid_map) |
+          combine(cpp_stagingprosecutorsspi_groupid_map) |
+          combine(cpp_stagingprosecutorscpsdocuments_groupid_map) |
+          combine(cpp_stagingprosecutorsdocuments_groupid_map) |
+          combine(cpp_stagingenforcement_groupid_map) |
+          combine(cpp_stagingidam_groupid_map) |
+          combine(cpp_stagingpnldoffences_groupid_map) |
+          combine(cpp_stagingtfl_groupid_map) |
+          combine(cpp_stagingdarts_groupid_map) |
+          combine(cpp_stagingprosecutors_groupid_map) |
+          combine(cpp_stagingbulkscan_groupid_map) |
+          combine(cpp_stagingxhibit_groupid_map) |
+          combine(cpp_support_groupid_map) |
+          combine(cpp_systemidmapper_groupid_map) |
+          combine(cpp_systemscheduling_groupid_map) |
+          combine(cpp_testcontext_groupid_map) |
+          combine(cpp_testing_tools_groupid_map) |
+          combine(cpp_usersgroups_groupid_map) |
+          combine(alfresco_groupid_map) |
+          combine(cpp_unifiedsearchquery_groupid_map) |
+          combine(cpp_uiapp_groupid_map)
+        }}"
+
+    - name: Create target directory
+      become: no
+      connection: local
+      file:
+        dest: "{{ playbook_dir }}/target"
+        state: directory
+
+    - name: Output file containing list of ansible variables to maven groupId
+      become: no
+      connection: local
+      template:
+        src: groupid_map.yml.j2
+        dest: "{{ playbook_dir }}/target/groupid_map.yml"
+
+    - name: Show the variable that was generated
+      debug:
+        msg: "{{ var_to_groupid | to_nice_yaml }}"
+        verbosity: 4
+
+  when: cpp_generate_groupid_map | bool
+
+- block:
+
+    - name: Load service maps
+      no_log: true
+      include_vars: "{{ item }}"
+      with_fileglob:
+        - "{{ role_path }}/vars/*_service_map.yml"
+
+  when: __cpp_microservices_converted_integration_tests_for_single_war is defined and __cpp_microservices_converted_integration_tests_for_single_war | bool
