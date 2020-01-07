@@ -1,0 +1,5 @@
+var_to_groupid:
+{% for key, value in var_to_groupid.iteritems() %}
+  {{ key }}:
+    groupid: {{ value.groupid }}
+{% endfor %}
