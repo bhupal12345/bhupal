@@ -1,0 +1,686 @@
+---
+# Set this to true on validation environments
+wildfly_deploy_mocks: false
+
+# Jolokia disabled by default
+cpp_wildfly_jolokia_enable: false
+cpp_wildfly_jolokia_version: '1.3.5'
+cpp_testing_tools_gavs: []
+
+cpp_wildfly_datasource_default_max_pool_size: 5
+
+# instead of building the limited GAV list,
+# build a complete map of ansible project
+# version to groupId list
+cpp_generate_groupid_map: false
+
+cpp_db_users: []
+
+wildfly_deploy_twif_simulator: false
+cpp_twif_simulator_gavs: []
+
+cpp_assignment_single_war: false
+cpp_assignment_gavs: []
+cpp_assignment_mock_gavs: []
+cpp_assignment_datasources: []
+cpp_assignment_db_eventstore: []
+cpp_assignment_db_eventstore_gavs: []
+cpp_assignment_db_system: []
+cpp_assignment_db_system_gavs: []
+cpp_assignment_db_viewstore: []
+cpp_assignment_db_viewstore_gavs: []
+
+cpp_audit_single_war: false
+cpp_audit_gavs: []
+cpp_audit_mock_gavs: []
+cpp_audit_datasources: []
+cpp_audit_db_eventstore: []
+cpp_audit_db_eventstore_gavs: []
+cpp_audit_db_system: []
+cpp_audit_db_system_gavs: []
+cpp_audit_db_viewstore: []
+cpp_audit_db_viewstore_gavs: []
+
+cpp_boxworkmanagement_single_war: false
+cpp_boxworkmanagement_gavs: []
+cpp_boxworkmanagement_custom_gavs: []
+cpp_boxworkmanagement_mock_gavs: []
+
+cpp_businessprocesses_single_war: false
+cpp_businessprocesses_gavs: []
+cpp_businessprocesses_mock_gavs: []
+
+cpp_camunda_gavs: []
+
+cpp_chargingworkmanagement_single_war: false
+cpp_chargingworkmanagement_gavs: []
+cpp_chargingworkmanagement_mock_gavs: []
+cpp_chargingworkmanagement_datasources: []
+
+cpp_defence_single_war: true
+cpp_defence_gavs: []
+cpp_defence_mock_gavs: []
+cpp_defence_datasources: []
+cpp_defence_db_eventstore: []
+cpp_defence_db_eventstore_gavs: []
+cpp_defence_db_system: []
+cpp_defence_db_system_gavs: []
+cpp_defence_db_viewstore: []
+cpp_defence_db_viewstore_gavs: []
+
+cpp_systemdocumentgenerator_gavs: []
+cpp_systemdocumentgenerator_mock_gavs: []
+cpp_systemdocumentgenerator_datasources: []
+cpp_systemdocumentgenerator_db_user: []
+cpp_systemdocumentgenerator_db_store: []
+cpp_systemdocumentgenerator_db_store_gavs: []
+cpp_systemdocumentgenerator_db_system: []
+cpp_systemdocumentgenerator_db_system_gavs: []
+
+cpp_fileservice_datasources: []
+cpp_fileservice_db_store: []
+cpp_fileservice_db_store_gavs: []
+cpp_fileservice_db_system: []
+cpp_fileservice_db_system_gavs: []
+
+cpp_hearing_single_war: false
+cpp_hearing_gavs: []
+cpp_hearing_mock_gavs: []
+cpp_hearing_datasources: []
+cpp_hearing_db_eventstore: []
+cpp_hearing_db_eventstore_gavs: []
+cpp_hearing_db_activiti: []
+cpp_hearing_db_activiti_gavs: []
+cpp_hearing_db_system: []
+cpp_hearing_db_system_gavs: []
+cpp_hearing_db_viewstore: []
+cpp_hearing_db_viewstore_gavs: []
+
+cpp_idpc_single_war: false
+cpp_idpc_gavs: []
+cpp_idpc_mock_gavs: []
+cpp_idpc_datasources: []
+cpp_idpc_db_activiti: []
+cpp_idpc_db_activiti_gavs: []
+cpp_idpc_db_eventstore: []
+cpp_idpc_db_eventstore_gavs: []
+cpp_idpc_db_system: []
+cpp_idpc_db_system_gavs: []
+cpp_idpc_db_viewstore: []
+cpp_idpc_db_viewstore_gavs: []
+
+cpp_lifecycle_single_war: false
+cpp_lifecycle_gavs: []
+cpp_lifecycle_mock_gavs: []
+cpp_lifecycle_datasources: []
+cpp_lifecycle_db_activiti: []
+cpp_lifecycle_db_activiti_gavs: []
+cpp_lifecycle_db_eventstore: []
+cpp_lifecycle_db_eventstore_gavs: []
+cpp_lifecycle_db_system: []
+cpp_lifecycle_db_system_gavs: []
+
+cpp_lifecycleredaction_single_war: false
+cpp_lifecycleredaction_gavs: []
+cpp_lifecycleredaction_mock_gavs: []
+cpp_lifecycleredaction_datasources: []
+cpp_lifecycleredaction_db_eventstore: []
+cpp_lifecycleredaction_db_eventstore_gavs: []
+cpp_lifecycleredaction_db_activiti: []
+cpp_lifecycleredaction_db_activiti_gavs: []
+cpp_lifecycleredaction_db_viewstore: []
+cpp_lifecycleredaction_db_viewstore_gavs: []
+
+cpp_listing_single_war: false
+cpp_listing_gavs: []
+cpp_listing_mock_gavs: []
+cpp_listing_datasources: []
+cpp_listing_db_eventstore: []
+cpp_listing_db_eventstore_gavs: []
+cpp_listing_db_system: []
+cpp_listing_db_system_gavs: []
+cpp_listing_db_viewstore: []
+cpp_listing_db_viewstore_gavs: []
+
+cpp_material_single_war: false
+cpp_material_gavs: []
+cpp_material_mock_gavs: []
+cpp_material_datasources: []
+cpp_material_db_eventstore: []
+cpp_material_db_eventstore_gavs: []
+cpp_material_db_system: []
+cpp_material_db_system_gavs: []
+cpp_material_db_viewstore: []
+cpp_material_db_viewstore_gavs: []
+
+cpp_mireportdata_single_war: false
+cpp_mireportdata_gavs: []
+cpp_mireportdata_custom_gavs: []
+cpp_mireportdata_mock_gavs: []
+cpp_mireportdata_datasources: []
+cpp_mireportdata_db_eventstore: []
+cpp_mireportdata_db_eventstore_gavs: []
+cpp_mireportdata_db_system: []
+cpp_mireportdata_db_system_gavs: []
+cpp_mireportdata_db_viewstore: []
+cpp_mireportdata_db_viewstore_gavs: []
+
+cpp_misystemdata_single_war: false
+cpp_misystemdata_gavs: []
+cpp_misystemdata_custom_gavs: []
+cpp_misystemdata_mock_gavs: []
+cpp_misystemdata_datasources: []
+cpp_misystemdata_db_eventstore: []
+cpp_misystemdata_db_eventstore_gavs: []
+cpp_misystemdata_db_system: []
+cpp_misystemdata_db_system_gavs: []
+cpp_misystemdata_db_viewstore: []
+cpp_misystemdata_db_viewstore_gavs: []
+
+cpp_notification_single_war: false
+cpp_notification_gavs: []
+cpp_notification_mock_gavs: []
+cpp_notification_datasources: []
+cpp_notification_db_eventstore: []
+cpp_notification_db_eventstore_gavs: []
+cpp_notification_db_system: []
+cpp_notification_db_system_gavs: []
+cpp_notification_db_viewstore: []
+cpp_notification_db_viewstore_gavs: []
+
+cpp_notificationnotify_single_war: true
+cpp_notificationnotify_gavs: []
+cpp_notificationnotify_mock_gavs: []
+cpp_notificationnotify_datasources: []
+cpp_notificationnotify_db_eventstore: []
+cpp_notificationnotify_db_eventstore_gavs: []
+cpp_notificationnotify_db_jobstore: []
+cpp_notificationnotify_db_jobstore_gavs: []
+cpp_notificationnotify_db_system: []
+cpp_notificationnotify_db_system_gavs: []
+cpp_notificationnotify_db_viewstore: []
+cpp_notificationnotify_db_viewstore_gavs: []
+
+cpp_onlineplea_single_war: false
+wildfly_deploy_online_plea: false
+
+cpp_onlineplea_gavs: []
+cpp_onlineplea_mock_gavs: []
+cpp_onlineplea_datasources: []
+cpp_onlineplea_db_eventstore: []
+cpp_onlineplea_db_eventstore_gavs: []
+cpp_onlineplea_db_viewstore: []
+cpp_onlineplea_db_viewstore_gavs: []
+
+cpp_people_single_war: false
+cpp_people_gavs: []
+cpp_people_mock_gavs: []
+cpp_people_datasources: []
+cpp_people_db_eventstore: []
+cpp_people_db_eventstore_gavs: []
+cpp_people_db_system: []
+cpp_people_db_system_gavs: []
+cpp_people_db_viewstore: []
+cpp_people_db_viewstore_gavs: []
+
+cpp_progression_single_war: false
+cpp_progression_gavs: []
+cpp_progression_mock_gavs: []
+cpp_progression_datasources: []
+cpp_progression_db_eventstore: []
+cpp_progression_db_eventstore_gavs: []
+cpp_progression_db_activiti: []
+cpp_progression_db_activiti_gavs: []
+cpp_progression_db_system: []
+cpp_progression_db_system_gavs: []
+cpp_progression_db_viewstore: []
+cpp_progression_db_viewstore_gavs: []
+
+cpp_prosecutioncasefile_single_war: false
+cpp_prosecutioncasefile_gavs: []
+cpp_prosecutioncasefile_mock_gavs: []
+cpp_prosecutioncasefile_datasources: []
+cpp_prosecutioncasefile_db_activiti: []
+cpp_prosecutioncasefile_db_activiti_gavs: []
+cpp_prosecutioncasefile_db_eventstore: []
+cpp_prosecutioncasefile_db_eventstore_gavs: []
+cpp_prosecutioncasefile_db_system: []
+cpp_prosecutioncasefile_db_system_gavs: []
+cpp_prosecutioncasefile_db_viewstore: []
+cpp_prosecutioncasefile_db_viewstore_gavs: []
+
+cpp_pssreferencedataoffences_single_war: false
+cpp_pssreferencedataoffences_gavs: []
+cpp_pssreferencedataoffences_custom_gavs: []
+cpp_pssreferencedataoffences_mock_gavs: []
+cpp_pssreferencedataoffences_datasources: []
+cpp_pssreferencedataoffences_db_eventstore: []
+cpp_pssreferencedataoffences_db_eventstore_gavs: []
+cpp_pssreferencedataoffences_db_viewstore: []
+cpp_pssreferencedataoffences_db_viewstore_gavs: []
+
+cpp_referencedata_single_war: false
+cpp_referencedata_gavs: []
+cpp_referencedata_mock_gavs: []
+cpp_referencedata_datasources: []
+cpp_referencedata_db_eventstore: []
+cpp_referencedata_db_eventstore_gavs: []
+cpp_referencedata_db_system: []
+cpp_referencedata_db_system_gavs: []
+cpp_referencedata_db_viewstore: []
+cpp_referencedata_db_viewstore_gavs: []
+
+cpp_referencedataoffences_single_war: false
+cpp_referencedataoffences_gavs: []
+cpp_referencedataoffences_mock_gavs: []
+cpp_referencedataoffences_datasources: []
+cpp_referencedataoffences_db_user: []
+cpp_referencedataoffences_db_store: []
+cpp_referencedataoffences_db_store_gavs: []
+cpp_referencedataoffences_db_system: []
+cpp_referencedataoffences_db_system_gavs: []
+
+cpp_resulting_single_war: false
+cpp_resulting_gavs: []
+cpp_resulting_mock_gavs: []
+cpp_resulting_datasources: []
+cpp_resulting_db_eventstore: []
+cpp_resulting_db_eventstore_gavs: []
+cpp_resulting_db_system: []
+cpp_resulting_db_system_gavs: []
+cpp_resulting_db_viewstore: []
+cpp_resulting_db_viewstore_gavs: []
+
+cpp_results_single_war: false
+cpp_results_gavs: []
+cpp_results_mock_gavs: []
+cpp_results_datasources: []
+cpp_results_db_eventstore: []
+cpp_results_db_eventstore_gavs: []
+cpp_results_db_system: []
+cpp_results_db_system_gavs: []
+cpp_results_db_viewstore: []
+cpp_results_db_viewstore_gavs: []
+
+cpp_scheduling_single_war: false
+cpp_scheduling_gavs: []
+cpp_scheduling_mock_gavs: []
+cpp_scheduling_datasources: []
+cpp_scheduling_db_eventstore: []
+cpp_scheduling_db_eventstore_gavs: []
+cpp_scheduling_db_system: []
+cpp_scheduling_db_system_gavs: []
+cpp_scheduling_db_viewstore: []
+cpp_scheduling_db_viewstore_gavs: []
+
+cpp_sjp_single_war: false
+cpp_sjp_gavs: []
+cpp_sjp_mock_gavs: []
+cpp_sjp_datasources: []
+cpp_sjp_db_activiti: []
+cpp_sjp_db_activiti_gavs: []
+cpp_sjp_db_eventstore: []
+cpp_sjp_db_eventstore_gavs: []
+cpp_sjp_db_eventprocessorstore: []
+cpp_sjp_db_system: []
+cpp_sjp_db_system_gavs: []
+cpp_sjp_db_viewstore: []
+cpp_sjp_db_viewstore_gavs: []
+
+cpp_staging_single_war: false
+cpp_staging_gavs: []
+cpp_staging_mock_gavs: []
+cpp_staging_datasources: []
+cpp_staging_db_eventstore: []
+cpp_staging_db_eventstore_gavs: []
+cpp_staging_db_eventprocessorstore: []
+cpp_staging_db_viewstore: []
+cpp_staging_db_viewstore_gavs: []
+
+cpp_stagingprosecutorsspi_single_war: false
+cpp_stagingprosecutorsspi_gavs: []
+cpp_stagingprosecutorsspi_mock_gavs: []
+cpp_stagingprosecutorsspi_datasources: []
+cpp_stagingprosecutorsspi_db_eventstore: []
+cpp_stagingprosecutorsspi_db_eventstore_gavs: []
+cpp_stagingprosecutorsspi_db_jobstore: []
+cpp_stagingprosecutorsspi_db_jobstore_gavs: []
+cpp_stagingprosecutorsspi_db_system: []
+cpp_stagingprosecutorsspi_db_system_gavs: []
+cpp_stagingprosecutorsspi_db_viewstore: []
+cpp_stagingprosecutorsspi_db_viewstore_gavs: []
+
+cpp_stagingprosecutorscpsdocuments_single_war: false
+cpp_stagingprosecutorscpsdocuments_gavs: []
+cpp_stagingprosecutorscpsdocuments_mock_gavs: []
+cpp_stagingprosecutorscpsdocuments_datasources: []
+cpp_stagingprosecutorscpsdocuments_db_eventstore: []
+cpp_stagingprosecutorscpsdocuments_db_eventstore_gavs: []
+cpp_stagingprosecutorscpsdocuments_db_jobstore: []
+cpp_stagingprosecutorscpsdocuments_db_jobstore_gavs: []
+cpp_stagingprosecutorscpsdocuments_db_system: []
+cpp_stagingprosecutorscpsdocuments_db_system_gavs: []
+cpp_stagingprosecutorscpsdocuments_db_viewstore: []
+cpp_stagingprosecutorscpsdocuments_db_viewstore_gavs: []
+
+cpp_stagingprosecutorsdocuments_single_war: false
+cpp_stagingprosecutorsdocuments_gavs: []
+cpp_stagingprosecutorsdocuments_mock_gavs: []
+cpp_stagingprosecutorsdocuments_datasources: []
+cpp_stagingprosecutorsdocuments_db_eventstore: []
+cpp_stagingprosecutorsdocuments_db_eventstore_gavs: []
+cpp_stagingprosecutorsdocuments_db_viewstore: []
+cpp_stagingprosecutorsdocuments_db_viewstore_gavs: []
+cpp_stagingprosecutorsdocuments_db_jobstore: []
+cpp_stagingprosecutorsdocuments_db_jobstore_gavs: []
+
+cpp_stagingedamm_single_war: false
+cpp_stagingedamm_gavs: []
+cpp_stagingedamm_mock_gavs: []
+cpp_stagingedamm_datasources: []
+cpp_stagingedamm_db_eventstore: []
+cpp_stagingedamm_db_eventstore_gavs: []
+cpp_stagingedamm_db_eventprocessorstore: []
+cpp_stagingedamm_db_viewstore: []
+cpp_stagingedamm_db_viewstore_gavs: []
+
+cpp_stagingedammstubservice_single_war: true
+cpp_stagingedammstubservice_gavs: []
+cpp_stagingedammstubservice_mock_gavs: []
+
+cpp_stagingenforcement_single_war: false
+cpp_stagingenforcement_gavs: []
+cpp_stagingenforcement_mock_gavs: []
+cpp_stagingenforcement_datasources: []
+cpp_stagingenforcement_db_eventstore: []
+cpp_stagingenforcement_db_eventstore_gavs: []
+cpp_stagingenforcement_db_eventprocessorstore: []
+cpp_stagingenforcement_db_system: []
+cpp_stagingenforcement_db_system_gavs: []
+cpp_stagingenforcement_db_viewstore: []
+cpp_stagingenforcement_db_viewstore_gavs: []
+
+cpp_stagingidam_gavs: []
+cpp_stagingidam_mock_gavs: []
+cpp_stagingidam_datasources: []
+cpp_stagingidam_db_eventstore: []
+cpp_stagingidam_db_eventstore_gavs: []
+cpp_stagingidam_db_viewstore: []
+cpp_stagingidam_db_viewstore_gavs: []
+
+cpp_stagingpnldoffences_single_war: false
+cpp_stagingpnldoffences_gavs: []
+cpp_stagingpnldoffences_mock_gavs: []
+cpp_stagingpnldoffences_datasources: []
+cpp_stagingpnldoffences_db_eventstore: []
+cpp_stagingpnldoffences_db_eventstore_gavs: []
+cpp_stagingpnldoffences_db_system: []
+cpp_stagingpnldoffences_db_system_gavs: []
+cpp_stagingpnldoffences_db_viewstore: []
+cpp_stagingpnldoffences_db_viewstore_gavs: []
+
+cpp_stagingtfl_single_war: false
+cpp_stagingtfl_gavs: []
+cpp_stagingtfl_mock_gavs: []
+cpp_stagingtfl_datasources: []
+cpp_stagingtfl_db_eventstore: []
+cpp_stagingtfl_db_eventstore_gavs: []
+cpp_stagingtfl_db_eventprocessorstore: []
+cpp_stagingtfl_db_system: []
+cpp_stagingtfl_db_system_gavs: []
+cpp_stagingtfl_db_viewstore: []
+cpp_stagingtfl_db_viewstore_gavs: []
+
+cpp_stagingdarts_single_war: false
+cpp_stagingdarts_gavs: []
+cpp_stagingdarts_mock_gavs: []
+cpp_stagingdarts_datasources: []
+cpp_stagingdarts_db_eventstore: []
+cpp_stagingdarts_db_eventstore_gavs: []
+cpp_stagingdarts_db_eventprocessorstore: []
+cpp_stagingdarts_db_system: []
+cpp_stagingdarts_db_system_gavs: []
+
+cpp_stagingprosecutors_single_war: false
+cpp_stagingprosecutors_gavs: []
+cpp_stagingprosecutors_mock_gavs: []
+cpp_stagingprosecutors_datasources: []
+cpp_stagingprosecutors_db_eventstore: []
+cpp_stagingprosecutors_db_eventstore_gavs: []
+cpp_stagingprosecutors_db_jobstore: []
+cpp_stagingprosecutors_db_jobstore_gavs: []
+cpp_stagingprosecutors_db_system: []
+cpp_stagingprosecutors_db_system_gavs: []
+cpp_stagingprosecutors_db_viewstore: []
+cpp_stagingprosecutors_db_viewstore_gavs: []
+
+cpp_support_single_war: true
+cpp_support_gavs: []
+cpp_support_mock_gavs: []
+cpp_support_datasources: []
+cpp_support_db_eventstore: []
+cpp_support_db_eventstore_gavs: []
+cpp_support_db_system: []
+cpp_support_db_system_gavs: []
+cpp_support_db_viewstore: []
+cpp_support_db_viewstore_gavs: []
+
+cpp_testcontext_gavs: []
+cpp_testcontext_mock_gavs: []
+cpp_testcontext_datasources: []
+cpp_testcontext_db_eventstore: []
+cpp_testcontext_db_eventstore_gavs: []
+cpp_testcontext_db_viewstore: []
+cpp_testcontext_db_viewstore_gavs: []
+
+cpp_usersgroups_single_war: false
+cpp_usersgroups_gavs: []
+cpp_usersgroups_mock_gavs: []
+cpp_usersgroups_datasources: []
+cpp_usersgroups_db_eventstore: []
+cpp_usersgroups_db_eventstore_gavs: []
+cpp_usersgroups_db_system: []
+cpp_usersgroups_db_system_gavs: []
+cpp_usersgroups_db_viewstore: []
+cpp_usersgroups_db_viewstore_gavs: []
+
+cpp_workmanagement_gavs: []
+cpp_workmanagement_datasources: []
+cpp_workmanagement_db_eventstore: []
+cpp_workmanagement_db_eventstore_gavs: []
+cpp_workmanagement_db_viewstore: []
+cpp_workmanagement_db_viewstore_gavs: []
+cpp_workmanagement_db: []
+cpp_workmanagement_db_gavs: []
+cpp_workmanagement_enable: false
+
+cpp_systemscheduling_single_war: false
+cpp_systemscheduling_gavs: []
+cpp_systemscheduling_mock_gavs: []
+cpp_systemscheduling_datasources: []
+cpp_systemscheduling_db_eventstore: []
+cpp_systemscheduling_db_eventstore_gavs: []
+cpp_systemscheduling_db_system: []
+cpp_systemscheduling_db_system_gavs: []
+cpp_systemscheduling_db_viewstore: []
+cpp_systemscheduling_db_viewstore_gavs: []
+
+cpp_systemidmapper_gavs: []
+cpp_systemidmapper_mock_gavs: []
+cpp_systemidmapper_datasources: []
+cpp_systemidmapper_db_user: []
+cpp_systemidmapper_db_store: []
+cpp_systemidmapper_db_store_gavs: []
+cpp_systemidmapper_db_system: []
+cpp_systemidmapper_db_system_gavs: []
+
+cpp_authorisationservice_gavs: []
+cpp_authorisationservice_mock_gavs: []
+cpp_authorisationservice_datasources: []
+cpp_authorisationservice_db_user: []
+cpp_authorisationservice_db_store: []
+cpp_authorisationservice_db_store_gavs: []
+cpp_authorisationservice_db_system: []
+cpp_authorisationservice_db_system_gavs: []
+
+cpp_unifiedsearchquery_single_war: false
+cpp_unifiedsearchquery_gavs: []
+cpp_unifiedsearchquery_custom_gavs: []
+cpp_unifiedsearchquery_mock_gavs: []
+cpp_unifiedsearchquery_datasources: []
+
+cpp_stagingbulkscan_single_war: false
+cpp_stagingbulkscan_gavs: []
+cpp_stagingbulkscan_custom_gavs: []
+cpp_stagingbulkscan_mock_gavs: []
+cpp_stagingbulkscan_datasources: []
+cpp_stagingbulkscan_db_eventstore: []
+cpp_stagingbulkscan_db_eventstore_gavs: []
+cpp_stagingbulkscan_db_viewstore: []
+cpp_stagingbulkscan_db_viewstore_gavs: []
+
+cpp_stagingxhibit_single_war: false
+cpp_stagingxhibit_gavs: []
+cpp_stagingxhibit_custom_gavs: []
+cpp_stagingxhibit_mock_gavs: []
+cpp_stagingxhibit_datasources: []
+cpp_stagingxhibit_db_eventstore: []
+cpp_stagingxhibit_db_eventstore_gavs: []
+cpp_stagingxhibit_db_system: []
+cpp_stagingxhibit_db_system_gavs: []
+cpp_stagingxhibit_db_viewstore: []
+cpp_stagingxhibit_db_viewstore_gavs: []
+
+cpp_microservice_filtered: []
+
+# Work around for gavdeploy failing if
+# not all versions have been declared.
+# Where an artifact genuninely needs
+# a version, but gets '0.0.0', the
+# deploy will fail as should be
+# expected.
+cpp_microservice_assignment_version: '0.0.0'
+cpp_microservice_audit_version: '0.0.0'
+cpp_microservice_boxworkmanagement_version: '0.0.0'
+cpp_microservice_businessprocesses_version: '0.0.0'
+cpp_microservice_cppauthorisationservice_version: '0.0.0'
+cpp_microservice_chargingworkmanagement_version: '0.0.0'
+cpp_microservice_defence_version: '0.0.0'
+cpp_microservice_systemdocumentgenerator_version: '0.0.0'
+cpp_microservice_hearing_version: '0.0.0'
+cpp_microservice_dpcidpc_version: '0.0.0'
+cpp_microservice_lifecycle_version: '0.0.0'
+cpp_microservice_lifecycleredaction_version: '0.0.0'
+cpp_microservice_listing_version: '0.0.0'
+cpp_microservice_material_version: '0.0.0'
+cpp_microservice_mireportdata_version: '0.0.0'
+cpp_microservice_misystemdata_version: '0.0.0'
+cpp_microservice_notification_version: '0.0.0'
+cpp_microservice_notificationnotify_version: '0.0.0'
+cpp_microservice_onlineplea_version: '0.0.0'
+cpp_microservice_people_version: '0.0.0'
+cpp_microservice_progression_version: '0.0.0'
+cpp_microservice_prosecutioncasefile_version: '0.0.0'
+cpp_microservice_pssreferencedataoffences_version: '0.0.0'
+cpp_microservice_referencedata_version: '0.0.0'
+cpp_microservice_referencedataoffences_version: '0.0.0'
+cpp_microservice_resulting_version: '0.0.0'
+cpp_microservice_results_version: '0.0.0'
+cpp_microservice_scheduling_version: '0.0.0'
+cpp_microservice_sjp_version: '0.0.0'
+cpp_microservice_staging_version: '0.0.0'
+cpp_microservice_stagingedamm_version: '0.0.0'
+cpp_microservice_stagingtfl_version: '0.0.0'
+cpp_microservice_stagingdarts_version: '0.0.0'
+cpp_microservice_stagingprosecutorsspi_version: '0.0.0'
+cpp_microservice_stagingprosecutorscpsdocuments_version: '0.0.0'
+cpp_microservice_stagingprosecutorsdocuments_version: '0.0.0'
+cpp_microservice_stagingenforcement_version: '0.0.0'
+cpp_microservice_stagingidam_version: '0.0.0'
+cpp_microservice_stagingpnldoffences_version: '0.0.0'
+cpp_microservice_stagingprosecutors_version: '0.0.0'
+cpp_microservice_stagingbulkscan_version: '0.0.0'
+cpp_microservice_support_version: '0.0.0'
+cpp_microservice_systemidmapper_version: '0.0.0'
+cpp_microservice_systemscheduling_version: '0.0.0'
+cpp_microservice_testcontext_version: '0.0.0'
+cpp_microservice_usersgroups_version: '0.0.0'
+cpp_project_alfresco_version: '0.0.0'
+cpp_project_fileservice_version: '0.0.0'
+cpp_project_jobmanager_version: '2.1.0'
+cpp_project_onlineplea_version: '0.0.0'
+cpp_project_uiapp_version: '0.0.0'
+cpp_project_cpp_ui_c2i_version: '0.0.0'
+cpp_project_cpp_ui_listing_version: '0.0.0'
+cpp_project_cpp_ui_hearingresults_version: '0.0.0'
+cpp_project_cpp_ui_defence_version: '0.0.0'
+cpp_project_cpp_ui_opami_version: '0.0.0'
+cpp_project_cpp_ui_prosecutioncasefile_version: '0.0.0'
+cpp_project_cpp_ui_hearing_version: '0.0.0'
+cpp_project_cpp_ui_home_version: '0.0.0'
+cpp_project_cpp_ui_results_version: '0.0.0'
+cpp_project_cpp_ui_bulkscan_version: '0.0.0'
+cpp_project_cpp_ui_sjp_version: '0.0.0'
+cpp_project_cpp_ui_prosecutor_version: '0.0.0'
+cpp_camunda_webapp_jboss_version: '0.0.0'
+cpp_camunda_engine_rest_version: '0.0.0'
+cpp_camunda_liquibase_version: '0.0.0'
+cpp_microservice_unifiedsearchquery_version: '0.0.0'
+
+
+# Initialise empty variables for
+# the list we use to map maven
+# groupIds to our arbitrarily
+# named "${context}_project_version.
+cpp_assignment_groupid_map: []
+cpp_audit_groupid_map: []
+cpp_authorisationservice_groupid_map: []
+cpp_businessprocesses_groupid_map: []
+cpp_chargingworkmanagement_groupid_map: []
+cpp_defence_groupid_map: []
+cpp_systemdocumentgenerator_groupid_map: []
+cpp_hearing_groupid_map: []
+cpp_dpcidpc_groupid_map: []
+cpp_lifecycle_groupid_map: []
+cpp_lifecycleredaction_groupid_map: []
+cpp_listing_groupid_map: []
+cpp_material_groupid_map: []
+cpp_mireportdata_groupid_map: []
+cpp_misystemdata_groupid_map: []
+cpp_notification_groupid_map: []
+cpp_notificationnotify_groupid_map: []
+cpp_onlineplea_groupid_map: []
+cpp_people_groupid_map: []
+cpp_progression_groupid_map: []
+cpp_prosecutioncasefile_groupid_map: []
+cpp_pssreferencedataoffences_groupid_map: []
+cpp_referencedata_groupid_map: []
+cpp_referencedataoffences_groupid_map: []
+cpp_resulting_groupid_map: []
+cpp_results_groupid_map: []
+cpp_scheduling_groupid_map: []
+cpp_sjp_groupid_map: []
+cpp_staging_groupid_map: []
+cpp_stagingbulkscan_groupid_map: []
+cpp_stagingedamm_groupid_map: []
+cpp_stagingtfl_groupid_map: []
+cpp_stagingdarts_groupid_map: []
+cpp_stagingprosecutorsspi_groupid_map: []
+cpp_stagingprosecutorscpsdocuments_groupid_map: []
+cpp_stagingprosecutorsdocuments_groupid_map: []
+cpp_stagingenforcement_groupid_map: []
+cpp_stagingidam_groupid_map: []
+cpp_stagingpnldoffences_groupid_map: []
+cpp_stagingprosecutors_groupid_map: []
+cpp_support_groupid_map: []
+cpp_systemidmapper_groupid_map: []
+cpp_systemscheduling_groupid_map: []
+cpp_testcontext_groupid_map: []
+cpp_testing_tools_groupid_map: []
+cpp_usersgroups_groupid_map: []
+cpp_unifiedsearchquery_groupid_map: []
+
+# This variable ends up in the health check endpoint URL.
+# It can be overridden so that one can query a VIP
+# for example.
+cpp_endpoint_host: localhost
