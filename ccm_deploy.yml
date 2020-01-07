@@ -1,0 +1,336 @@
+---
+# stop application servers
+#
+
+- hosts: all
+  gather_facts: true
+  tasks:
+    - name: Register that the Gather Facts play has been run
+      set_fact:
+        __common_setup_gather_facts_has_run: true
+  tags:
+    - facts
+    - all
+    - minimal_hardening
+
+# making sure selinux is enabled before running deploy
+- hosts:  ~(.*WFTPS01.*):&all
+  become: true
+  gather_facts: true
+  tasks:
+  - name: Ensure Selinux is set to enforcing mode
+    lineinfile:
+      path: /etc/selinux/config
+      regexp: '^SELINUX='
+      line: SELINUX=enforcing
+    register: result
+  - include_role:
+      name: reboot_stack
+      reboot_stack_force: true
+      tags:
+        - reboot_stack
+    when: result.changed
+
+- hosts: role_ccm_wildfly:role_ccm_wildfly_wfm
+  become: true
+  tasks:
+    - name: stop wildfly
+      service:
+        name: wildfly
+        state: stopped
+  tags:
+    - cpp_application
+
+- hosts: role_ccm_alfresco
+  become: true
+  tasks:
+    - name: stop alfresco
+      service:
+        name: tomcat
+        state: stopped
+  tags:
+    - cpp_alfresco
+
+
+- name: Set up Alfresco Database postgres
+  hosts: role_ccm_alfresco_db
+  become: true
+  roles:
+    - role: mojcpp.postgresql_cluster
+      postgresql_prepared_transactions_enable: false
+    - role: postgresql_tasks
+      postgresql_superuser: "{{ cpp_app_database_superuser }}"
+      postgresql_user: "{{ alfresco_postgresql_user }}"
+      postgresql_database: "{{ alfresco_postgresql_database }}"
+    - role: postgresql_dbs
+      tags:
+        - collectd
+        - pgreadonly
+    - role: postgresql_collectd
+      postgresql_collectd_databases: "{{ postgresql_dbs_filtered }}"
+      when: ansible_local.postgresql.writeable == 'yes'
+      tags: collectd
+    - role: collectd_postgresql
+      collectd_postgresql_databases: "{{ postgresql_dbs_filtered }}"
+      tags: collectd
+    - role: cpp_db_readonly
+      cpp_db_readonly_databases: "{{ postgresql_dbs_filtered }}"
+      when:
+        - ansible_local.postgresql.writeable == 'yes'
+        - cpp_db_readonly_enabled
+      tags: pgreadonly
+  tags:
+    - cpp_alfresco
+    - reset_db
+
+- name: Set up context Database postgres
+  hosts: role_ccm_context_db
+  become: true
+  roles:
+    - role: cpp
+    - role: mojcpp.postgresql_cluster
+    - role: postgresql_tasks
+      postgresql_superuser: "{{ cpp_app_database_superuser }}"
+      when: ansible_local.postgresql.writeable == 'yes'
+    - role: postgresql_objects
+      when: ansible_local.postgresql.writeable == 'yes'
+    - role: liquibase
+      when: ansible_local.postgresql.writeable == 'yes'
+    - role: postgresql_dbs
+      tags:
+        - collectd
+        - pgreadonly
+    - role: postgresql_collectd
+      postgresql_collectd_databases: "{{ postgresql_dbs_filtered }}"
+      when: ansible_local.postgresql.writeable == 'yes'
+      tags: collectd
+    - role: collectd_postgresql
+      collectd_postgresql_databases: "{{ postgresql_dbs_filtered }}"
+      tags: collectd
+    - role: cpp_db_readonly
+      cpp_db_readonly_databases: "{{ postgresql_dbs_filtered }}"
+      when:
+        - ansible_local.postgresql.writeable == 'yes'
+        - cpp_db_readonly_enabled
+      tags: pgreadonly
+  tags:
+    - reset_db
+    - cpp_application
+
+###################################################################
+#
+# alfresco integration environments deploy workflow
+#
+
+# stop tomcat, deploy wars, start tomcat
+#
+- hosts: role_ccm_alfresco
+  become: true
+  roles:
+    - role: tomcat
+      tomcat_reset: true
+  tags: cpp_alfresco
+
+- hosts: role_ccm_alfresco
+  become: true
+  roles:
+    - role: jmx_management
+      jmx_management_path: "{{ tomcat_home ~ '/conf' }}"
+      jmx_management_user: 'tomcat'
+      jmx_management_group: 'tomcat'
+      jmx_management_monitor_password: "{{ tomcat_jmx_monitor_password }}"
+    - role: tomcat
+      tomcat_reset: false
+    - role: tomcat_alfresco
+      tomcat_alfresco_data_destroy: false
+    - role: gavdeploy
+      gavdeploy_list: "{{ alfresco_gavdeploy_list }}"
+  tags: cpp_alfresco
+
+# below is using serial 1 and a health check to ensure each alfresco is
+# fully started and licensed before the next alfresco instance starts.
+- hosts: role_ccm_alfresco
+  become: true
+  serial: 1
+  pre_tasks:
+    - name: Show the cpp_project_alfresco_version
+      debug:
+        var: cpp_project_alfresco_version
+        verbosity: 4
+    - name: ensure cpp_project_alfresco_version has been injected in the current play
+      shell: echo foo > /dev/null
+      changed_when: false
+      failed_when: not cpp_project_alfresco_version is defined
+    - name: start tomcat
+      service:
+        name: tomcat
+        state: started
+  roles:
+    - role: gavdeploy_health_check
+      gavdeploy_list: "{{ alfresco_gavdeploy_list }}"
+      tags: health
+  tags: cpp_alfresco
+
+- hosts: role_ccm_alfresco_lb:role_ccm_frontend_lb
+  become: true
+  roles:
+    - { role: sp_haproxy, haproxy_listening_port: "{{ haproxy_frontend_port }}"}
+  tags: cpp_alfresco
+
+
+- hosts: role_ccm_artemis
+  become: true
+  roles:
+    - { role: linux-aio }
+    - { role: artemis_base }
+    - { role: artemis_metrics_agent }
+    - { role: cpp_artemis }
+    - { role: artemis_instance }
+  tags:
+    - reset_artemis
+    - cpp_application
+
+- name: API Load Balancer Role
+  hosts: role_ccm_api_lb
+  become: true
+  serial: 1
+  roles:
+    - { role: vault-shared-service-cert }
+    - { role: cpp }
+    - { role: selinux }
+    - { role: sp_haproxy, haproxy_listening_port: "{{ haproxy_frontend_port }}"}
+  tags:
+    - ccm
+    - apilb
+
+# wildfly - install/configure but dont start wildfly because the pair of nodes try to write to the DB at the same time
+#
+- hosts: role_ccm_wildfly
+  become: true
+  roles:
+    - { role: cpp, tags: ["wildfly"] }
+    - { role: cpp_wildfly, tags: ["wildfly"] }
+    - { role: wildfly_metrics_agent, tags: ["wildfly"] }
+    - { role: wildfly_reset, when: wildfly_reset_type is defined, gavdeploy_list: "{{ wildfly_gavdeploy_list }}" }
+    - { role: docmosis-base, tags: ["docmosis"] }
+    - { role: docmosis-core, tags: ["docmosis"] }
+    - { role: gavdeploy, gavdeploy_list: "{{ wildfly_gavdeploy_list }}" }
+    - { role: wildfly, gavdeploy_list: "{{ wildfly_gavdeploy_list }}", wildfly_cold_deploy: true, wildfly_service_state: 'stopped' }
+  tags:
+    - cpp_application
+
+# wildfly - start service odd number first, then even
+#
+- hosts: role_ccm_wildfly
+  become: true
+  tasks:
+    - name: Start wildfly servers with odd numbers in hostname
+      service:
+        name: wildfly
+        state: "started"
+      when:
+        - inventory_ordinal | int % 2 == 1
+    - pause:
+        minutes: 2
+      when:
+        - environment_vars_wildfly_hosts | length > 1
+        - not ansible_check_mode
+    - name: Start wildfly servers with even numbers in hostname
+      service:
+        name: wildfly
+        state: "started"
+      when:
+        - inventory_ordinal | int % 2 == 0
+  tags:
+    - cpp_application
+
+# wildfly WFM (Camunda)
+- hosts: role_ccm_wildfly_wfm
+  become: true
+  roles:
+    - { role: cpp, tags: ["wildfly"] }
+    - { role: wfm_liquibase_paas }
+    - { role: cpp_wildfly, tags: ["wildfly"] }
+    - { role: wildfly_metrics_agent, tags: ["wildfly"] }
+    - { role: wildfly_reset, when: wildfly_reset_type is defined, gavdeploy_list: "{{ wildfly_gavdeploy_list }}" }
+    - { role: gavdeploy, gavdeploy_list: "{{ wildfly_gavdeploy_list }}" }
+    - { role: wildfly, gavdeploy_list: "{{ wildfly_gavdeploy_list }}", wildfly_cold_deploy: true, wildfly_service_state: 'stopped' }
+    - { role: cpp_local_service_redirector, tags: ["wildfly"] }
+    - { role: sp_haproxy, haproxy_listening_port: 8080, tags: ["wildfly"] }
+  tags:
+    - cpp_application_wfm
+
+# wildfly WFM (Camunda)
+- hosts: role_ccm_wildfly_wfm
+  become: true
+  serial: 1
+  tasks:
+    - name: Starting Wildfly WFM (Camunda) one server at a time
+      service:
+        name: wildfly
+        state: started
+    - pause:
+        minutes: 1
+  tags:
+    - cpp_application_wfm
+
+- name: Docmosis
+  become: true
+  hosts: role_ccm_docmosis
+  roles:
+    - libreoffice-sdk
+    - docmosis-base
+    - docmosis-converter
+    - docmosis-core
+  tags:
+    - docmosis
+
+# wildfly
+#
+- hosts: role_ccm_wildfly
+  become: true
+  roles:
+    - { role: cpp, tags: ["wildfly"] }
+    - { role: cpp_local_service_redirector, tags: ["wildfly"] }
+    - { role: sp_haproxy, haproxy_listening_port: 8080, tags: ["wildfly"] }
+  tags:
+    - cpp_application
+    - redirector
+    - load_balancers
+
+- name: Deploy ui
+  hosts: role_ccm_cdns:role_ccm_webserver
+  become: true
+  roles:
+    - { role: vault-shared-service-cert }
+    - { role: cpp }
+    - { role: nginx_base }
+    - { role: gavdeploy, gavdeploy_list: "{{ ui_content_gavdeploy_list }}" }
+    - { role: cpp_nginx }
+  tags:
+    - ccm
+    - ui
+
+- hosts: role_ccm_wildfly:role_ccm_wildfly_wfm
+  become: true
+  roles:
+    - { role: cpp, tags: ["wildfly", "health"] }
+    - { role: gavdeploy_health_check, gavdeploy_list: "{{ wildfly_gavdeploy_list }}", tags: ["wildfly", "health"] }
+  tags:
+    - cpp_application
+    - cpp_application_wfm
+
+- name: libra gateway
+  hosts: role_ccm_libra_gateway
+  become: true
+  roles:
+    - role: sp_libra_gateway
+  tags:
+    - cpp_application
+
+# This play is to either add or remove the OMI restart cron job.
+
+- hosts: all
+  become: true
+  roles:
+    - role: oms_cron
